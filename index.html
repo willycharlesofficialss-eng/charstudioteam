@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>charstudio | Business Hub & Team Space</title>
+
+  <!-- Tailwind CSS & FontAwesome Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- HTML2PDF CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at top right, #1a1a2e, #0a0a12);
+      color: #f3f4f6;
+    }
+
+    /* Glassmorphism custom styling */
+    .glass-panel {
+      background: rgba(18, 18, 30, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    .neon-text-green {
+      color: #39FF14;
+      text-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
+    }
+
+    .neon-border-green {
+      border-color: #39FF14;
+      box-shadow: 0 0 8px rgba(57, 255, 20, 0.2);
+    }
+
+    .neon-bg-green {
+      background-color: #39FF14;
+      box-shadow: 0 0 12px rgba(57, 255, 20, 0.5);
+    }
+
+    /* Scrollbar Style */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f0f1a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(57, 255, 20, 0.3);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #39FF14;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-16 lg:pb-0">
+
+  <!-- TOP HEADER & BRAND -->
+  <header class="glass-panel sticky top-0 z-50 px-6 py-4 flex justify-between items-center border-b border-white/10">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg">
+        <svg viewBox="0 0 100 100" class="w-7 h-7">
+          <path d="M75,30 C60,15 35,15 25,35 C15,55 25,75 50,75 C70,75 80,60 65,55 C55,50 45,55 45,60 C45,65 55,68 65,60" fill="none" stroke="url(#logoGrad)" stroke-width="12" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div>
+        <h1 class="font-black text-xl tracking-wider text-white">char<span class="text-indigo-400">studio</span></h1>
+        <p class="text-[9px] text-gray-400 tracking-widest uppercase">Internal Workspace</p>
+      </div>
+    </div>
+
+    <!-- Filter Global Bulan & Tahun -->
+    <div class="flex items-center space-x-2">
+      <i class="fa-solid fa-calendar-days text-indigo-400"></i>
+      <select id="globalFilterBulan" onchange="onGlobalMonthChange()" class="bg-zinc-900 border border-white/10 text-white text-xs rounded-lg p-2 focus:outline-none focus:border-indigo-500">
+        <!-- Generasi dinamis via JS -->
+      </select>
+    </div>
+  </header>
+
+  <div class="max-w-[1400px] mx-auto flex flex-col lg:flex-row p-4 lg:p-6 gap-6">
+    <!-- NAVIGATION BAR (SIDEBAR ON DESKTOP, BOTTOM BAR ON MOBILE) -->
+    <nav class="fixed bottom-0 left-0 right-0 lg:relative lg:bottom-auto lg:left-auto lg:right-auto z-50 lg:w-64 flex lg:flex-col glass-panel rounded-t-2xl lg:rounded-2xl p-2 lg:p-4 justify-around lg:justify-start gap-2 border-t lg:border-t-0">
+      <div class="hidden lg:block pb-4 mb-4 border-b border-white/10">
+        <p class="text-[10px] text-gray-400 uppercase tracking-widest px-3">Main Navigation</p>
+      </div>
+
+      <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-btn w-full flex flex-col lg:flex-row items-center gap-2 lg:gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 text-indigo-400 bg-white/5 border border-indigo-500/20">
+        <i class="fa-solid fa-chart-pie text-lg"></i>
+        <span>Dashboard</span>
+      </button>
+
+      <button onclick="switchTab('tim')" id="btn-tim" class="nav-btn w-full flex flex-col lg:flex-row items-center gap-2 lg:gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white hover:bg-white/5">
+        <i class="fa-solid fa-users text-lg"></i>
+        <span>Manajemen Tim</span>
+      </button>
+
+      <button onclick="switchTab('income')" id="btn-income" class="nav-btn w-full flex flex-col lg:flex-row items-center gap-2 lg:gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white hover:bg-white/5">
+        <i class="fa-solid fa-wallet text-lg"></i>
+        <span>Penghasilan</span>
+      </button>
+
+      <button onclick="switchTab('outcome')" id="btn-outcome" class="nav-btn w-full flex flex-col lg:flex-row items-center gap-2 lg:gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white hover:bg-white/5">
+        <i class="fa-solid fa-receipt text-lg"></i>
+        <span>Pengeluaran</span>
+      </button>
+
+      <button onclick="switchTab('goals')" id="btn-goals" class="nav-btn w-full flex flex-col lg:flex-row items-center gap-2 lg:gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white hover:bg-white/5">
+        <i class="fa-solid fa-bullseye text-lg"></i>
+        <span>Goals Tracker</span>
+      </button>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 min-w-0">
+
+      <!-- ==================== 1. DASHBOARD TAB ==================== -->
+      <section id="tab-dashboard" class="tab-content block space-y-6">
+        <div id="pdf-container" class="space-y-6">
+          <div class="flex justify-between items-center">
+            <div>
+              <h2 class="text-xl lg:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                Financial Dashboard <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-1 rounded-full" id="dashBulanLabel">-</span>
+              </h2>
+              <p class="text-xs text-gray-400">Ringkasan status finansial studio & tim berjalan.</p>
+            </div>
+            <!-- PDF Download -->
+            <button onclick="exportDashboardPDF()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-2">
+              <i class="fa-solid fa-file-pdf"></i> Download PDF
+            </button>
+          </div>
+
+          <!-- Cards Metrics Row -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Total Income -->
+            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-300">
+              <div class="absolute -right-4 -bottom-4 opacity-5 text-emerald-500 text-7xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fa-solid fa-square-plus"></i>
+              </div>
+              <p class="text-xs text-gray-400 font-semibold tracking-wider uppercase mb-1">Total Income</p>
+              <h3 class="text-2xl lg:text-3xl font-black text-emerald-400" id="dashIncome">Rp 0</h3>
+              <p class="text-[10px] text-gray-500 mt-2 flex items-center gap-1">
+                <i class="fa-solid fa-circle-check text-emerald-500"></i> Terakumulasi dari order client
+              </p>
+            </div>
+
+            <!-- Total Outcome -->
+            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group hover:border-red-500/30 transition-all duration-300">
+              <div class="absolute -right-4 -bottom-4 opacity-5 text-red-500 text-7xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fa-solid fa-square-minus"></i>
+              </div>
+              <p class="text-xs text-gray-400 font-semibold tracking-wider uppercase mb-1">Total Outcome</p>
+              <h3 class="text-2xl lg:text-3xl font-black text-red-400" id="dashOutcome">Rp 0</h3>
+              <p class="text-[10px] text-gray-500 mt-2 flex items-center gap-1">
+                <i class="fa-solid fa-circle-minus text-red-500"></i> Total pengeluaran operasional
+              </p>
+            </div>
+
+            <!-- Net Profit -->
+            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group hover:border-neon-green/30 transition-all duration-300 border border-green-500/10">
+              <div class="absolute -right-4 -bottom-4 opacity-5 text-green-400 text-7xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fa-solid fa-money-bill-trend-up"></i>
+              </div>
+              <p class="text-xs text-gray-400 font-semibold tracking-wider uppercase mb-1">Net Profit</p>
+              <h3 class="text-2xl lg:text-3xl font-black neon-text-green" id="dashProfit">Rp 0</h3>
+              <p class="text-[10px] text-gray-500 mt-2 flex items-center gap-1">
+                <i class="fa-solid fa-chart-line text-emerald-400"></i> Keuntungan bersih tim berjalan
+              </p>
+            </div>
+          </div>
+
+          <!-- Growth Trend Chart -->
+          <div class="glass-panel p-6 rounded-2xl">
+            <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-indigo-400"></i> Income Growth Trend (Last 6 Months)
+            </h3>
+            <div class="h-64 lg:h-80 w-full">
+              <canvas id="growthChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 2. TAB MANAJEMEN TIM ==================== -->
+      <section id="tab-tim" class="tab-content hidden space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+          <div>
+            <h2 class="text-xl lg:text-2xl font-bold tracking-tight text-white">Manajemen Tim Internal</h2>
+            <p class="text-xs text-gray-400">Kelola informasi, peran, dan status anggota aktif charstudio.</p>
+          </div>
+          <button onclick="openTeamModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-user-plus"></i> Tambah Anggota Tim
+          </button>
+        </div>
+
+        <!-- Team Table Panel -->
+        <div class="glass-panel rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-white/10 text-[10px] text-gray-400 uppercase tracking-widest">
+                  <th class="p-4">ID Anggota</th>
+                  <th class="p-4">Nama</th>
+                  <th class="p-4">Peran Utama</th>
+                  <th class="p-4">Status</th>
+                  <th class="p-4 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="teamTableBody" class="text-xs divide-y divide-white/5 text-gray-200">
+                <!-- Dinamis via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 3. TAB PENGHASILAN ==================== -->
+      <section id="tab-income" class="tab-content hidden space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+          <div>
+            <h2 class="text-xl lg:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+              Transaksi Masuk <span id="incomeBulanLabel" class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full idBulanLabel">-</span>
+            </h2>
+            <p class="text-xs text-gray-400">Pencatatan pendapatan studio langsung dari pemesanan klien.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="incomeFilterBulan" onchange="onIncomeMonthChange()" class="bg-zinc-900 border border-white/10 text-white text-xs rounded-lg p-2.5 focus:outline-none focus:border-emerald-500">
+              <!-- Generasi dinamis via JS -->
+            </select>
+            <button onclick="exportIncomePDF()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-file-pdf"></i> Download PDF
+            </button>
+            <button onclick="openIncomeModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-circle-plus"></i> Tambah Transaksi
+            </button>
+          </div>
+        </div>
+
+        <!-- Income Table Panel -->
+        <div id="pdf-income" class="glass-panel rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-white/10 text-[10px] text-gray-400 uppercase tracking-widest">
+                  <th class="p-4">ID</th>
+                  <th class="p-4">Tanggal</th>
+                  <th class="p-4">Client</th>
+                  <th class="p-4">Kontak (IG/WA)</th>
+                  <th class="p-4">Jenis Jasa</th>
+                  <th class="p-4">Harga</th>
+                  <th class="p-4">Sumber</th>
+                  <th class="p-4 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="incomeTableBody" class="text-xs divide-y divide-white/5 text-gray-200">
+                <!-- Dinamis via JS -->
+              </tbody>
+            </table>
+          </div>
+          <!-- Pagination & Lazy Load Trigger -->
+          <div class="p-4 border-t border-white/10 flex justify-between items-center text-xs text-gray-400">
+            <span id="incomeCountLabel">Menampilkan 0 data</span>
+            <button id="btnLoadMoreIncome" onclick="loadMoreIncome()" class="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition-all">
+              Load More <i class="fa-solid fa-angles-down"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 4. TAB PENGELUARAN ==================== -->
+      <section id="tab-outcome" class="tab-content hidden space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+          <div>
+            <h2 class="text-xl lg:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+              Pengeluaran Tim <span id="outcomeBulanLabel" class="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded-full idBulanLabel">-</span>
+            </h2>
+            <p class="text-xs text-gray-400">Monitoring pengeluaran operasional bulanan studio.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="outcomeFilterBulan" onchange="onOutcomeMonthChange()" class="bg-zinc-900 border border-white/10 text-white text-xs rounded-lg p-2.5 focus:outline-none focus:border-red-500">
+              <!-- Generasi dinamis via JS -->
+            </select>
+            <button onclick="exportOutcomePDF()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-file-pdf"></i> Download PDF
+            </button>
+            <button onclick="openOutcomeModal()" class="bg-red-600 hover:bg-red-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-circle-minus"></i> Catat Pengeluaran
+            </button>
+          </div>
+        </div>
+
+        <!-- Outcome Table Panel -->
+        <div id="pdf-outcome" class="glass-panel rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-white/10 text-[10px] text-gray-400 uppercase tracking-widest">
+                  <th class="p-4">ID Pengeluaran</th>
+                  <th class="p-4">Tanggal</th>
+                  <th class="p-4">Jenis Pengeluaran</th>
+                  <th class="p-4">Biaya (Harga)</th>
+                  <th class="p-4 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="outcomeTableBody" class="text-xs divide-y divide-white/5 text-gray-200">
+                <!-- Dinamis via JS -->
+              </tbody>
+            </table>
+          </div>
+          <!-- Pagination & Lazy Load Trigger -->
+          <div class="p-4 border-t border-white/10 flex justify-between items-center text-xs text-gray-400">
+            <span id="outcomeCountLabel">Menampilkan 0 data</span>
+            <button id="btnLoadMoreOutcome" onclick="loadMoreOutcome()" class="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition-all">
+              Load More <i class="fa-solid fa-angles-down"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 5. TAB GOALS TRACKER ==================== -->
+      <section id="tab-goals" class="tab-content hidden space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+          <div>
+            <h2 class="text-xl lg:text-2xl font-bold tracking-tight text-white">Goals & Milestones Tracker</h2>
+            <p class="text-xs text-gray-400">Pantau akumulasi target tabungan, sedekah, dan liburan tim.</p>
+          </div>
+          <button onclick="openGoalModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-plus-circle"></i> Tambah Goal Baru
+          </button>
+        </div>
+
+        <!-- Goals Grid System -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="goalsGridContainer">
+          <!-- Dinamis via JS -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==================== MODALS & TOASTS (CUSTOM POPUPS) ==================== -->
+
+  <!-- Team Modal (Add / Edit) -->
+  <div id="teamModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 hidden">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 border border-white/20">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-user-gear text-indigo-400"></i> <span id="teamModalTitle">Tambah Anggota Tim</span>
+        </h3>
+        <button onclick="closeTeamModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="teamForm" onsubmit="submitTeamForm(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="teamId">
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Nama Lengkap</label>
+          <input type="text" id="teamNama" required class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Peran Utama</label>
+          <input type="text" id="teamPeran" required placeholder="Contoh: Video Editor, Illustrator" class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Status Keanggotaan</label>
+          <select id="teamStatus" class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-indigo-500">
+            <option value="Aktif">Aktif</option>
+            <option value="Non-Aktif">Non-Aktif</option>
+          </select>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeTeamModal()" class="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold p-2.5 rounded-xl transition-all">Batal</button>
+          <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold p-2.5 rounded-xl transition-all">Simpan Anggota</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Income Modal -->
+  <div id="incomeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 hidden">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 border border-white/20">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-emerald-400"></i> Catat Pendapatan Baru
+        </h3>
+        <button onclick="closeIncomeModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="incomeForm" onsubmit="submitIncomeForm(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Nama Client</label>
+          <input type="text" id="incClient" required class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Kontak (IG/WA)</label>
+          <input type="text" id="incKontak" required placeholder="Contoh: @client_name atau 0812xxxx" class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Jenis Jasa</label>
+          <input type="text" id="incJasa" required placeholder="Contoh: Motion Graphic 30s" class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Harga Jasa (Rupiah)</label>
+          <input type="number" id="incHarga" required class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Sumber Order</label>
+          <select id="incSumber" class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-emerald-500">
+            <option value="Online">Online</option>
+            <option value="Offline">Offline</option>
+          </select>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeIncomeModal()" class="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold p-2.5 rounded-xl transition-all">Batal</button>
+          <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold p-2.5 rounded-xl transition-all">Kirim Transaksi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Outcome Modal -->
+  <div id="outcomeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 hidden">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 border border-white/20">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-minus-circle text-red-400"></i> Catat Biaya Pengeluaran
+        </h3>
+        <button onclick="closeOutcomeModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="outcomeForm" onsubmit="submitOutcomeForm(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Jenis Pengeluaran</label>
+          <input type="text" id="outJenis" required placeholder="Contoh: Biaya Listrik Studio, Sewa Cloud" class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-red-500">
+        </div>
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Biaya (Harga Rupiah)</label>
+          <input type="number" id="outHarga" required class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-red-500">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeOutcomeModal()" class="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold p-2.5 rounded-xl transition-all">Batal</button>
+          <button type="submit" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold p-2.5 rounded-xl transition-all">Simpan Pengeluaran</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Goals Modal (Full CRUD) -->
+  <div id="goalModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 hidden">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 border border-white/20">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-bullseye text-indigo-400"></i> <span id="goalModalTitle">Manage Goal Tracker</span>
+        </h3>
+        <button onclick="closeGoalModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="goalForm" onsubmit="submitGoalForm(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="goalId">
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Nama Goal / Target Kegiatan</label>
+          <input type="text" id="goalNama" required placeholder="Contoh: Liburan Akhir Tahun Tim" class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Target Biaya (Rupiah)</label>
+          <input type="number" id="goalTarget" required placeholder="Sediakan nilai target rupiah" class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-gray-400 mb-1 font-semibold">Dana Terkumpul Saat Ini (Rupiah)</label>
+          <input type="number" id="goalTerkumpul" required class="w-full bg-zinc-900 border border-white/10 text-white rounded-lg p-2.5 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" id="btnDeleteGoal" onclick="deleteGoalItem()" class="bg-red-950/80 hover:bg-red-600 text-red-200 font-bold p-2.5 rounded-xl transition-all hidden">Hapus Goal</button>
+          <button type="button" onclick="closeGoalModal()" class="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold p-2.5 rounded-xl transition-all">Batal</button>
+          <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold p-2.5 rounded-xl transition-all">Simpan Goal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Alert Notification Box -->
+  <div id="toastBox" class="fixed top-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- INDICATOR LOADING -->
+  <div id="loadingOverlay" class="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center hidden">
+    <div class="text-center">
+      <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-xs text-indigo-400 font-semibold tracking-widest uppercase animate-pulse">loading charstudio</p>
+    </div>
+  </div>
+
+
+  <!-- ==================== FRONTEND JAVASCRIPT CORE ==================== -->
+  <script>
+    // Penentuan Ketersediaan Google Apps Script
+    const isMockMode = (typeof google === 'undefined' || typeof google.script === 'undefined');
+
+    // Global State
+    let currentBulanTahun = ''; // Format: MM/yyyy (dipakai Dashboard)
+    let incomeBulan = '';       // Bulan terpilih untuk tab Penghasilan
+    let outcomeBulan = '';      // Bulan terpilih untuk tab Pengeluaran
+    let incomeOffset = 0;
+    const incomeLimit = 10;
+    let outcomeOffset = 0;
+    const outcomeLimit = 10;
+
+    let activeChart = null;
+
+    // --- 1. DUMMY DATA FOR CANVAS FALLBACK ---
+    const mockDb = {
+      dashboard: {
+        totalIncome: 45000000,
+        totalOutcome: 18000000,
+        netProfit: 27000000,
+        chartData: {
+          labels: ["01/2026", "02/2026", "03/2026", "04/2026", "05/2026", "06/2026"],
+          values: [30000000, 32000000, 28000000, 41000000, 38000000, 45000000]
+        }
+      },
+      tim: [
+        { id: "TIM-001", nama: "Alex Chandra", peran: "Lead Designer", status: "Aktif" },
+        { id: "TIM-002", nama: "Rian Hidayat", peran: "Senior Video Editor", status: "Aktif" },
+        { id: "TIM-003", nama: "Siti Rahma", peran: "Ilustrator & Animator", status: "Aktif" }
+      ],
+      income: [
+        { id: "INC-20260610-0001", bulan: "06/2026", tanggal: "10/06/2026 10:30", client: "Studio Merdeka", kontak: "0812345678", jasa: "Motion Graphic 3D", harga: 25000000, sumber: "Online" },
+        { id: "INC-20260609-0002", bulan: "06/2026", tanggal: "09/06/2026 14:15", client: "PT Sentosa Jaya", kontak: "@sentosa_corp", jasa: "Explainer Video", harga: 15000000, sumber: "Online" },
+        { id: "INC-20260608-0001", bulan: "06/2026", tanggal: "08/06/2026 09:00", client: "Cafe Bintang", kontak: "0811987654", jasa: "Branding Kit Portfolio", harga: 5000000, sumber: "Offline" }
+      ],
+      outcome: [
+        { id: "OUT-20260610-0001", bulan: "06/2026", tanggal: "10/06/2026 11:00", jenis: "Sewa Cloud Server", harga: 3500000 },
+        { id: "OUT-20260608-0002", bulan: "06/2026", tanggal: "08/06/2026 16:30", jenis: "Biaya Listrik Studio", harga: 2500000 },
+        { id: "OUT-20260605-0001", bulan: "06/2026", tanggal: "05/06/2026 13:00", jenis: "Beli Assets Premium", harga: 12000000 }
+      ],
+      goals: [
+        { id: "GOAL-001", nama: "Alokasi Sedekah Bulanan 10%", target: 5000000, terkumpul: 1500000, status: "In Progress" },
+        { id: "GOAL-002", nama: "Studio Trip ke Malaysia, Singapore", target: 30000000, terkumpul: 12000000, status: "In Progress" },
+        { id: "GOAL-003", nama: "Upgrade PC Editing Studio", target: 15000000, terkumpul: 15000000, status: "Achieved" }
+      ]
+    };
+
+    // --- INITIALIZATION ---
+    window.onload = function() {
+      showLoading(true);
+      generateMonthOptions();
+
+      if (isMockMode) {
+        showToast("Safe Preview: Menjalankan mode demo (Offline).", "info");
+        onGlobalMonthChange();
+      } else {
+        onGlobalMonthChange();
+      }
+    };
+
+    // Helper: isi sebuah <select> dengan 12 bulan ke belakang
+    function fillMonthSelect(select) {
+      const today = new Date();
+      for (let i = 0; i < 12; i++) {
+        const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        const formatValue = ((d.getMonth() + 1).toString().padStart(2, '0')) + '/' + d.getFullYear();
+        const optName = d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        select.add(new Option(optName, formatValue));
+      }
+    }
+
+    // Bangun Filter Bulan & Tahun (global + per-tab)
+    function generateMonthOptions() {
+      const gSel = document.getElementById("globalFilterBulan");
+      const iSel = document.getElementById("incomeFilterBulan");
+      const oSel = document.getElementById("outcomeFilterBulan");
+
+      fillMonthSelect(gSel);
+      fillMonthSelect(iSel);
+      fillMonthSelect(oSel);
+
+      currentBulanTahun = gSel.value;
+      incomeBulan = iSel.value;
+      outcomeBulan = oSel.value;
+    }
+
+    // Helper: kembalikan kunci MM/yyyy untuk bulan berjalan
+    function getCurrentMonthKey() {
+      const d = new Date();
+      return (d.getMonth() + 1).toString().padStart(2, '0') + '/' + d.getFullYear();
+    }
+
+    // Helper: paksa filter global pindah ke bulan berjalan (agar data baru langsung tampil)
+    function jumpToCurrentMonth() {
+      const select = document.getElementById("globalFilterBulan");
+      const key = getCurrentMonthKey();
+      if (select.value !== key) {
+        // pastikan opsi ada
+        let found = false;
+        for (let i = 0; i < select.options.length; i++) {
+          if (select.options[i].value === key) { found = true; break; }
+        }
+        if (found) {
+          select.value = key;
+        }
+      }
+      onGlobalMonthChange();
+    }
+
+    // Selektor bulan GLOBAL (header) -> mengatur Dashboard + menyinkronkan tab Penghasilan & Pengeluaran
+    function onGlobalMonthChange() {
+      currentBulanTahun = document.getElementById("globalFilterBulan").value;
+
+      // Sinkronkan selektor bulan per-tab dengan bulan global
+      incomeBulan = currentBulanTahun;
+      outcomeBulan = currentBulanTahun;
+      document.getElementById("incomeFilterBulan").value = currentBulanTahun;
+      document.getElementById("outcomeFilterBulan").value = currentBulanTahun;
+
+      // Update badge label bulan
+      document.getElementById("dashBulanLabel").innerText = currentBulanTahun;
+      const labels = document.getElementsByClassName("idBulanLabel");
+      for (let el of labels) {
+        el.innerText = currentBulanTahun;
+      }
+
+      // Reset Offset Pencarian / Pagination
+      incomeOffset = 0;
+      outcomeOffset = 0;
+
+      // Fetch ulang data sesuai bulan aktif
+      refreshAllData();
+    }
+
+    // Selektor bulan khusus tab PENGHASILAN
+    function onIncomeMonthChange() {
+      incomeBulan = document.getElementById("incomeFilterBulan").value;
+      document.getElementById("incomeBulanLabel").innerText = incomeBulan;
+      incomeOffset = 0;
+      refreshAllData();
+    }
+
+    // Selektor bulan khusus tab PENGELUARAN
+    function onOutcomeMonthChange() {
+      outcomeBulan = document.getElementById("outcomeFilterBulan").value;
+      document.getElementById("outcomeBulanLabel").innerText = outcomeBulan;
+      outcomeOffset = 0;
+      refreshAllData();
+    }
+
+    function refreshAllData() {
+      showLoading(true);
+
+      if (isMockMode) {
+        // Filter data sesuai bulan terpilih (data otomatis reset ke 0 untuk bulan tanpa data)
+        const incomeList = mockDb.income.filter(i => i.bulan === incomeBulan);
+        const outcomeList = mockDb.outcome.filter(o => o.bulan === outcomeBulan);
+
+        // Dashboard mengikuti bulan global
+        const dashIncomeList = mockDb.income.filter(i => i.bulan === currentBulanTahun);
+        const dashOutcomeList = mockDb.outcome.filter(o => o.bulan === currentBulanTahun);
+        const totalIncome = dashIncomeList.reduce((s, i) => s + (i.harga || 0), 0);
+        const totalOutcome = dashOutcomeList.reduce((s, o) => s + (o.harga || 0), 0);
+
+        renderDashboard({
+          totalIncome: totalIncome,
+          totalOutcome: totalOutcome,
+          netProfit: totalIncome - totalOutcome,
+          chartData: mockDb.dashboard.chartData
+        });
+        renderTeam(mockDb.tim);
+        renderIncome(incomeList, false);
+        renderOutcome(outcomeList, false);
+        renderGoals(mockDb.goals);
+
+        document.getElementById("incomeCountLabel").innerText = `Menampilkan ${incomeList.length} data`;
+        document.getElementById("outcomeCountLabel").innerText = `Menampilkan ${outcomeList.length} data`;
+        toggleLoadMoreButton("btnLoadMoreIncome", false);
+        toggleLoadMoreButton("btnLoadMoreOutcome", false);
+
+        showLoading(false);
+      } else {
+        // 1. Fetch Dashboard (mengikuti bulan global)
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.status === "success") {
+              renderDashboard(res);
+            } else {
+              showToast("Gagal memuat Dashboard: " + res.message, "danger");
+            }
+          })
+          .withFailureHandler(err => {
+            showToast("Error koneksi dashboard: " + err.toString(), "danger");
+          })
+          .getDashboardData(currentBulanTahun);
+
+        // 2. Fetch Team
+        google.script.run
+          .withSuccessHandler(res => {
+            renderTeam(res);
+          })
+          .withFailureHandler(err => {
+            showToast("Error koneksi data tim: " + err.toString(), "danger");
+          })
+          .getTeamList();
+
+        // 3. Fetch Income First Load (mengikuti bulan tab Penghasilan)
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.status === "success") {
+              renderIncome(res.list, false);
+              toggleLoadMoreButton("btnLoadMoreIncome", res.hasMore);
+              document.getElementById("incomeCountLabel").innerText = `Menampilkan ${res.list.length} dari ${res.totalCount} data`;
+            } else {
+              showToast("Gagal membaca transaksi: " + res.message, "danger");
+            }
+          })
+          .withFailureHandler(err => {
+            showToast("Error membaca transaksi: " + err.toString(), "danger");
+          })
+          .getIncomeData(incomeBulan, incomeLimit, incomeOffset);
+
+        // 4. Fetch Outcome First Load (mengikuti bulan tab Pengeluaran)
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.status === "success") {
+              renderOutcome(res.list, false);
+              toggleLoadMoreButton("btnLoadMoreOutcome", res.hasMore);
+              document.getElementById("outcomeCountLabel").innerText = `Menampilkan ${res.list.length} dari ${res.totalCount} data`;
+            } else {
+              showToast("Gagal membaca pengeluaran: " + res.message, "danger");
+            }
+          })
+          .withFailureHandler(err => {
+            showToast("Error membaca pengeluaran: " + err.toString(), "danger");
+          })
+          .getOutcomeData(outcomeBulan, outcomeLimit, outcomeOffset);
+
+        // 5. Fetch Goals
+        google.script.run
+          .withSuccessHandler(res => {
+            renderGoals(res);
+            showLoading(false);
+          })
+          .withFailureHandler(err => {
+            showToast("Error membaca goals: " + err.toString(), "danger");
+            showLoading(false);
+          })
+          .getGoalsData();
+      }
+    }
+
+    // --- RENDERING ENGINES ---
+
+    // 1. Dashboard
+    function renderDashboard(data) {
+      document.getElementById("dashIncome").innerText = "Rp " + (data.totalIncome || 0).toLocaleString('id-ID');
+      document.getElementById("dashOutcome").innerText = "Rp " + (data.totalOutcome || 0).toLocaleString('id-ID');
+
+      const profitEl = document.getElementById("dashProfit");
+      profitEl.innerText = "Rp " + (data.netProfit || 0).toLocaleString('id-ID');
+      if (data.netProfit < 0) {
+        profitEl.className = "text-2xl lg:text-3xl font-black text-red-500";
+      } else {
+        profitEl.className = "text-2xl lg:text-3xl font-black neon-text-green";
+      }
+
+      // Render Growth Chart (Chart.js)
+      if (activeChart) {
+        activeChart.destroy();
+      }
+
+      const ctx = document.getElementById('growthChart').getContext('2d');
+      activeChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.chartData.labels,
+          datasets: [{
+            label: 'Income Realtime (Rp)',
+            data: data.chartData.values,
+            borderColor: '#39FF14',
+            backgroundColor: 'rgba(57, 255, 20, 0.1)',
+            borderWidth: 3,
+            tension: 0.35,
+            fill: true,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#39FF14',
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#9ca3af', font: { family: 'Plus Jakarta Sans', size: 10 } }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: {
+                color: '#9ca3af',
+                font: { family: 'Plus Jakarta Sans', size: 10 },
+                callback: function(value) {
+                  return 'Rp ' + (value / 1000000) + 'M';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 2. Team
+    function renderTeam(list) {
+      const tbody = document.getElementById("teamTableBody");
+      tbody.innerHTML = '';
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-500 italic">Belum ada anggota tim terdaftar.</td></tr>`;
+        return;
+      }
+
+      list.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-white/5 transition-colors";
+        tr.innerHTML = `
+          <td class="p-4 font-mono font-bold text-gray-400">${item.id}</td>
+          <td class="p-4 font-semibold text-white">${item.nama}</td>
+          <td class="p-4 text-indigo-300 font-medium">${item.peran}</td>
+          <td class="p-4">
+            <span class="px-2 py-1 rounded-full text-[10px] font-bold ${item.status === 'Aktif' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}">
+              ${item.status}
+            </span>
+          </td>
+          <td class="p-4 text-center">
+            <div class="flex items-center justify-center gap-2">
+              <button onclick="editTeamItem('${item.id}', '${item.nama}', '${item.peran}', '${item.status}')" class="text-indigo-400 hover:text-white p-1" title="Edit Peran"><i class="fa-solid fa-user-pen"></i></button>
+              <button onclick="deleteTeamItem('${item.id}')" class="text-red-400 hover:text-red-300 p-1" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 3. Income
+    function renderIncome(list, append = false) {
+      const tbody = document.getElementById("incomeTableBody");
+      if (!append) tbody.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        if (!append) {
+          tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-gray-500 italic">Tidak ada transaksi bulan ini.</td></tr>`;
+        }
+        return;
+      }
+
+      list.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-white/5 transition-colors";
+        tr.innerHTML = `
+          <td class="p-4 font-mono font-bold text-gray-400 text-[10px]">${item.id}</td>
+          <td class="p-4 text-gray-400">${item.tanggal}</td>
+          <td class="p-4 font-bold text-white">${item.client}</td>
+          <td class="p-4 text-indigo-300">${item.kontak}</td>
+          <td class="p-4">${item.jasa}</td>
+          <td class="p-4 text-emerald-400 font-bold">Rp ${(item.harga || 0).toLocaleString('id-ID')}</td>
+          <td class="p-4">
+            <span class="px-2 py-1 rounded-full text-[9px] font-semibold ${item.sumber === 'Online' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}">
+              ${item.sumber}
+            </span>
+          </td>
+          <td class="p-4 text-center">
+            <button onclick="deleteIncomeItem('${item.id}')" class="text-red-400 hover:text-red-300 p-1" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 4. Outcome
+    function renderOutcome(list, append = false) {
+      const tbody = document.getElementById("outcomeTableBody");
+      if (!append) tbody.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        if (!append) {
+          tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-500 italic">Tidak ada pengeluaran bulan ini.</td></tr>`;
+        }
+        return;
+      }
+
+      list.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-white/5 transition-colors";
+        tr.innerHTML = `
+          <td class="p-4 font-mono font-bold text-gray-400 text-[10px]">${item.id}</td>
+          <td class="p-4 text-gray-400">${item.tanggal}</td>
+          <td class="p-4 text-white font-medium">${item.jenis}</td>
+          <td class="p-4 text-red-400 font-bold">Rp ${(item.harga || 0).toLocaleString('id-ID')}</td>
+          <td class="p-4 text-center">
+            <button onclick="deleteOutcomeItem('${item.id}')" class="text-red-400 hover:text-red-300 p-1" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 5. Goals
+    function renderGoals(list) {
+      const container = document.getElementById("goalsGridContainer");
+      container.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        container.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-6 italic">Belum ada Goals di-setup. Buat goal baru dengan menekan tombol Tambah Goal Baru.</div>`;
+        return;
+      }
+
+      list.forEach(item => {
+        const target = item.target || 0;
+        const terkumpul = item.terkumpul || 0;
+        const persentase = target > 0 ? Math.min(100, Math.round((terkumpul / target) * 100)) : 0;
+
+        const card = document.createElement("div");
+        card.className = "glass-panel p-6 rounded-2xl relative flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="flex justify-between items-start mb-3">
+              <span class="text-[9px] uppercase font-bold text-indigo-400 bg-indigo-500/15 px-2.5 py-1 rounded-full">${item.id}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${item.status === 'Achieved' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/20 text-amber-400 border border-amber-500/20'}">
+                ${item.status}
+              </span>
+            </div>
+            <h4 class="text-sm font-bold text-white mb-4">${item.nama}</h4>
+
+            <div class="space-y-1 mb-6">
+              <div class="flex justify-between text-xs text-gray-400">
+                <span>Progress Dana</span>
+                <span class="font-bold text-white">${persentase}%</span>
+              </div>
+              <div class="w-full h-2.5 bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-1000 ${persentase === 100 ? 'neon-bg-green' : 'bg-indigo-500'}" style="width: ${persentase}%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pt-4 border-t border-white/5 text-xs">
+            <div>
+              <p class="text-[10px] text-gray-500 font-medium">Akumulasi Terkumpul</p>
+              <p class="font-bold text-white">Rp ${terkumpul.toLocaleString('id-ID')} <span class="text-[10px] text-gray-400 font-normal">/ Rp ${target.toLocaleString('id-ID')}</span></p>
+            </div>
+            <button onclick="openGoalModal('${item.id}', '${item.nama}', ${target}, ${terkumpul})" class="bg-indigo-600/30 hover:bg-indigo-600 hover:text-white text-indigo-400 font-bold p-2.5 rounded-xl transition-all" title="Manage Goal">
+              <i class="fa-solid fa-gear"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // --- INTERACTIVE ACTIONS & LOGIC ---
+
+    // TAB NAVIGATION
+    function switchTab(tabName) {
+      const contents = document.getElementsByClassName("tab-content");
+      for (let el of contents) {
+        el.classList.add("hidden");
+      }
+      document.getElementById(`tab-${tabName}`).classList.remove("hidden");
+
+      const buttons = document.getElementsByClassName("nav-btn");
+      for (let btn of buttons) {
+        btn.className = "nav-btn w-full flex flex-col lg:flex-row items-center gap-2 lg:gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 text-gray-400 hover:text-white hover:bg-white/5";
+      }
+
+      const activeBtn = document.getElementById(`btn-${tabName}`);
+      if (tabName === 'dashboard') {
+        activeBtn.className = "nav-btn w-full flex flex-col lg:flex-row items-center gap-2 lg:gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 text-indigo-400 bg-white/5 border border-indigo-500/20";
+      } else if (tabName === 'income') {
+        activeBtn.className = "nav-btn w-full flex flex-col lg:flex-row items-center gap-2 lg:gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 text-emerald-400 bg-white/5 border border-emerald-500/20";
+      } else if (tabName === 'outcome') {
+        activeBtn.className = "nav-btn w-full flex flex-col lg:flex-row items-center gap-2 lg:gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 text-red-400 bg-white/5 border border-red-500/20";
+      } else {
+        activeBtn.className = "nav-btn w-full flex flex-col lg:flex-row items-center gap-2 lg:gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 text-indigo-400 bg-white/5 border border-indigo-500/20";
+      }
+    }
+
+    // PAGINATION LAZY LOADING
+    function toggleLoadMoreButton(btnId, hasMore) {
+      const btn = document.getElementById(btnId);
+      if (hasMore) {
+        btn.classList.remove("hidden");
+      } else {
+        btn.classList.add("hidden");
+      }
+    }
+
+    function loadMoreIncome() {
+      incomeOffset += incomeLimit;
+      showLoading(true);
+
+      if (isMockMode) {
+        showToast("Mode Demo: Seluruh data simulasi telah ditampilkan.", "info");
+        showLoading(false);
+      } else {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.status === "success") {
+              renderIncome(res.list, true);
+              toggleLoadMoreButton("btnLoadMoreIncome", res.hasMore);
+              document.getElementById("incomeCountLabel").innerText = `Menampilkan ${document.getElementById("incomeTableBody").rows.length} dari ${res.totalCount} data`;
+            }
+            showLoading(false);
+          })
+          .withFailureHandler(err => {
+            showToast("Gagal memuat transaksi: " + err.toString(), "danger");
+            showLoading(false);
+          })
+          .getIncomeData(incomeBulan, incomeLimit, incomeOffset);
+      }
+    }
+
+    function loadMoreOutcome() {
+      outcomeOffset += outcomeLimit;
+      showLoading(true);
+
+      if (isMockMode) {
+        showToast("Mode Demo: Seluruh data simulasi telah ditampilkan.", "info");
+        showLoading(false);
+      } else {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.status === "success") {
+              renderOutcome(res.list, true);
+              toggleLoadMoreButton("btnLoadMoreOutcome", res.hasMore);
+              document.getElementById("outcomeCountLabel").innerText = `Menampilkan ${document.getElementById("outcomeTableBody").rows.length} dari ${res.totalCount} data`;
+            }
+            showLoading(false);
+          })
+          .withFailureHandler(err => {
+            showToast("Gagal memuat pengeluaran: " + err.toString(), "danger");
+            showLoading(false);
+          })
+          .getOutcomeData(outcomeBulan, outcomeLimit, outcomeOffset);
+      }
+    }
+
+    // MODAL CONTROL & SUBMISSIONS
+
+    // 1. Team Modal
+    function openTeamModal() {
+      document.getElementById("teamForm").reset();
+      document.getElementById("teamId").value = '';
+      document.getElementById("teamModalTitle").innerText = "Tambah Anggota Tim";
+      document.getElementById("teamModal").classList.remove("hidden");
+    }
+    function closeTeamModal() {
+      document.getElementById("teamModal").classList.add("hidden");
+    }
+    function editTeamItem(id, nama, peran, status) {
+      document.getElementById("teamId").value = id;
+      document.getElementById("teamNama").value = nama;
+      document.getElementById("teamPeran").value = peran;
+      document.getElementById("teamStatus").value = status;
+      document.getElementById("teamModalTitle").innerText = "Edit Peran Anggota";
+      document.getElementById("teamModal").classList.remove("hidden");
+    }
+    function submitTeamForm(e) {
+      e.preventDefault();
+      showLoading(true);
+
+      const id = document.getElementById("teamId").value;
+      const nama = document.getElementById("teamNama").value;
+      const peran = document.getElementById("teamPeran").value;
+      const status = document.getElementById("teamStatus").value;
+
+      if (isMockMode) {
+        if (id) {
+          const item = mockDb.tim.find(t => t.id === id);
+          if (item) { item.nama = nama; item.peran = peran; item.status = status; }
+          showToast("Mode Demo: Sukses memperbarui anggota.", "success");
+        } else {
+          const newId = "TIM-" + (mockDb.tim.length + 1).toString().padStart(3, '0');
+          mockDb.tim.push({ id: newId, nama, peran, status });
+          showToast("Mode Demo: Sukses menambah anggota baru.", "success");
+        }
+        closeTeamModal();
+        refreshAllData();
+      } else {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.status === "success") {
+              showToast("Berhasil menyimpan data tim!", "success");
+              closeTeamModal();
+              refreshAllData();
+            } else {
+              showToast("Gagal menyimpan: " + res.message, "danger");
+              showLoading(false);
+            }
+          })
+          .withFailureHandler(err => {
+            showToast("Error sistem: " + err.toString(), "danger");
+            showLoading(false);
+          })
+          .upsertTeam(id, nama, peran, status);
+      }
+    }
+    function deleteTeamItem(id) {
+      if (confirm(`Apakah Anda yakin ingin menghapus data anggota ${id}?`)) {
+        showLoading(true);
+        if (isMockMode) {
+          mockDb.tim = mockDb.tim.filter(t => t.id !== id);
+          showToast("Mode Demo: Sukses menghapus anggota.", "success");
+          refreshAllData();
+        } else {
+          google.script.run
+            .withSuccessHandler(res => {
+              if (res.status === "success") {
+                showToast("Berhasil menghapus anggota!", "success");
+                refreshAllData();
+              } else {
+                showToast("Gagal menghapus: " + res.message, "danger");
+                showLoading(false);
+              }
+            })
+            .withFailureHandler(err => {
+              showToast("Error sistem: " + err.toString(), "danger");
+              showLoading(false);
+            })
+            .deleteTeam(id);
+        }
+      }
+    }
+
+    // 2. Income Modal
+    function openIncomeModal() {
+      document.getElementById("incomeForm").reset();
+      document.getElementById("incomeModal").classList.remove("hidden");
+    }
+    function closeIncomeModal() {
+      document.getElementById("incomeModal").classList.add("hidden");
+    }
+    function submitIncomeForm(e) {
+      e.preventDefault();
+      showLoading(true);
+
+      const client = document.getElementById("incClient").value;
+      const kontak = document.getElementById("incKontak").value;
+      const jasa = document.getElementById("incJasa").value;
+      const harga = parseFloat(document.getElementById("incHarga").value);
+      const sumber = document.getElementById("incSumber").value;
+
+      if (isMockMode) {
+        const idInc = "INC-20260610-" + (mockDb.income.length + 1).toString().padStart(4, '0');
+        mockDb.income.unshift({ id: idInc, bulan: getCurrentMonthKey(), tanggal: "10/06/2026 12:00", client, kontak, jasa, harga, sumber });
+
+        showToast("Mode Demo: Sukses menambahkan pendapatan baru.", "success");
+        closeIncomeModal();
+        incomeOffset = 0;
+        switchTab('income');
+        jumpToCurrentMonth();
+      } else {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.status === "success") {
+              showToast(`Berhasil mencatat pendapatan: ID ${res.id}!`, "success");
+              closeIncomeModal();
+              // Pindah ke bulan berjalan agar transaksi baru langsung terlihat
+              incomeOffset = 0;
+              switchTab('income');
+              jumpToCurrentMonth();
+            } else {
+              showToast("Gagal mencatat: " + res.message, "danger");
+              showLoading(false);
+            }
+          })
+          .withFailureHandler(err => {
+            showToast("Error sistem backend: " + err.toString(), "danger");
+            showLoading(false);
+          })
+          .addIncome(client, kontak, jasa, harga, sumber);
+      }
+    }
+    function deleteIncomeItem(id) {
+      if (confirm(`Apakah Anda yakin ingin menghapus transaksi ${id}?`)) {
+        showLoading(true);
+        if (isMockMode) {
+          mockDb.income = mockDb.income.filter(i => i.id !== id);
+          showToast("Mode Demo: Transaksi berhasil dihapus.", "success");
+          incomeOffset = 0;
+          refreshAllData();
+        } else {
+          google.script.run
+            .withSuccessHandler(res => {
+              if (res.status === "success") {
+                showToast("Transaksi berhasil dihapus!", "success");
+                incomeOffset = 0;
+                refreshAllData();
+              } else {
+                showToast("Gagal menghapus: " + res.message, "danger");
+                showLoading(false);
+              }
+            })
+            .withFailureHandler(err => {
+              showToast("Error sistem: " + err.toString(), "danger");
+              showLoading(false);
+            })
+            .deleteIncome(id);
+        }
+      }
+    }
+
+    // 3. Outcome Modal
+    function openOutcomeModal() {
+      document.getElementById("outcomeForm").reset();
+      document.getElementById("outcomeModal").classList.remove("hidden");
+    }
+    function closeOutcomeModal() {
+      document.getElementById("outcomeModal").classList.add("hidden");
+    }
+    function submitOutcomeForm(e) {
+      e.preventDefault();
+      showLoading(true);
+
+      const jenis = document.getElementById("outJenis").value;
+      const harga = parseFloat(document.getElementById("outHarga").value);
+
+      if (isMockMode) {
+        const idOut = "OUT-20260610-" + (mockDb.outcome.length + 1).toString().padStart(4, '0');
+        mockDb.outcome.unshift({ id: idOut, bulan: getCurrentMonthKey(), tanggal: "10/06/2026 12:30", jenis, harga });
+
+        showToast("Mode Demo: Sukses menyimpan biaya operasional.", "success");
+        closeOutcomeModal();
+        outcomeOffset = 0;
+        switchTab('outcome');
+        jumpToCurrentMonth();
+      } else {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.status === "success") {
+              showToast(`Berhasil menyimpan biaya pengeluaran: ID ${res.id}!`, "success");
+              closeOutcomeModal();
+              // Pindah ke bulan berjalan agar pengeluaran baru langsung terlihat
+              outcomeOffset = 0;
+              switchTab('outcome');
+              jumpToCurrentMonth();
+            } else {
+              showToast("Gagal menyimpan: " + res.message, "danger");
+              showLoading(false);
+            }
+          })
+          .withFailureHandler(err => {
+            showToast("Error sistem backend: " + err.toString(), "danger");
+            showLoading(false);
+          })
+          .addOutcome(jenis, harga);
+      }
+    }
+    function deleteOutcomeItem(id) {
+      if (confirm(`Apakah Anda yakin ingin menghapus pengeluaran ${id}?`)) {
+        showLoading(true);
+        if (isMockMode) {
+          mockDb.outcome = mockDb.outcome.filter(o => o.id !== id);
+          showToast("Mode Demo: Pengeluaran berhasil dihapus.", "success");
+          outcomeOffset = 0;
+          refreshAllData();
+        } else {
+          google.script.run
+            .withSuccessHandler(res => {
+              if (res.status === "success") {
+                showToast("Pengeluaran berhasil dihapus!", "success");
+                outcomeOffset = 0;
+                refreshAllData();
+              } else {
+                showToast("Gagal menghapus: " + res.message, "danger");
+                showLoading(false);
+              }
+            })
+            .withFailureHandler(err => {
+              showToast("Error sistem: " + err.toString(), "danger");
+              showLoading(false);
+            })
+            .deleteOutcome(id);
+        }
+      }
+    }
+
+    // 4. Update Goal Modal (CRUD)
+    function openGoalModal(id = '', nama = '', target = 0, terkumpul = 0) {
+      document.getElementById("goalForm").reset();
+      document.getElementById("goalId").value = id;
+
+      if (id) {
+        document.getElementById("goalModalTitle").innerText = "Edit Goal Tracker";
+        document.getElementById("goalNama").value = nama;
+        document.getElementById("goalTarget").value = target;
+        document.getElementById("goalTerkumpul").value = terkumpul;
+        document.getElementById("btnDeleteGoal").classList.remove("hidden");
+      } else {
+        document.getElementById("goalModalTitle").innerText = "Tambah Goal Baru";
+        document.getElementById("btnDeleteGoal").classList.add("hidden");
+      }
+
+      document.getElementById("goalModal").classList.remove("hidden");
+    }
+
+    function closeGoalModal() {
+      document.getElementById("goalModal").classList.add("hidden");
+    }
+
+    function submitGoalForm(e) {
+      e.preventDefault();
+      showLoading(true);
+
+      const id = document.getElementById("goalId").value;
+      const nama = document.getElementById("goalNama").value;
+      const target = parseFloat(document.getElementById("goalTarget").value);
+      const terkumpul = parseFloat(document.getElementById("goalTerkumpul").value);
+
+      if (isMockMode) {
+        if (id) {
+          const item = mockDb.goals.find(g => g.id === id);
+          if (item) {
+            item.nama = nama;
+            item.target = target;
+            item.terkumpul = terkumpul;
+            item.status = (terkumpul >= target) ? "Achieved" : "In Progress";
+          }
+          showToast("Mode Demo: Goal berhasil diperbarui.", "success");
+        } else {
+          const nextId = "GOAL-" + (mockDb.goals.length + 1).toString().padStart(3, '0');
+          const status = (terkumpul >= target) ? "Achieved" : "In Progress";
+          mockDb.goals.push({ id: nextId, nama, target, terkumpul, status });
+          showToast("Mode Demo: Goal baru berhasil ditambahkan.", "success");
+        }
+        closeGoalModal();
+        refreshAllData();
+      } else {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.status === "success") {
+              showToast("Berhasil menyimpan goals data!", "success");
+              closeGoalModal();
+              refreshAllData();
+            } else {
+              showToast("Gagal update goals: " + res.message, "danger");
+              showLoading(false);
+            }
+          })
+          .withFailureHandler(err => {
+            showToast("Error sistem backend: " + err.toString(), "danger");
+            showLoading(false);
+          })
+          .upsertGoal(id, nama, target, terkumpul);
+      }
+    }
+
+    function deleteGoalItem() {
+      const id = document.getElementById("goalId").value;
+      if (!id) return;
+
+      if (confirm(`Apakah Anda yakin ingin menghapus data Goal ${id}?`)) {
+        showLoading(true);
+        if (isMockMode) {
+          mockDb.goals = mockDb.goals.filter(g => g.id !== id);
+          showToast("Mode Demo: Goal berhasil dihapus.", "success");
+          closeGoalModal();
+          refreshAllData();
+        } else {
+          google.script.run
+            .withSuccessHandler(res => {
+              if (res.status === "success") {
+                showToast("Goal berhasil dihapus dari database!", "success");
+                closeGoalModal();
+                refreshAllData();
+              } else {
+                showToast("Gagal menghapus goal: " + res.message, "danger");
+                showLoading(false);
+              }
+            })
+            .withFailureHandler(err => {
+              showToast("Error sistem backend: " + err.toString(), "danger");
+              showLoading(false);
+            })
+            .deleteGoal(id);
+        }
+      }
+    }
+
+    // EXPORT PDF
+    function exportDashboardPDF() {
+      const element = document.getElementById('pdf-container');
+      const opt = {
+        margin:       10,
+        filename:     `charstudio-Laporan-${currentBulanTahun.replace('/','-')}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0a0a12' },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+      };
+
+      showLoading(true);
+      html2pdf().set(opt).from(element).save().then(() => {
+        showLoading(false);
+        showToast("File PDF Laporan Berhasil Didownload!", "success");
+      }).catch(err => {
+        showLoading(false);
+        showToast("Gagal mengekspor PDF: " + err, "danger");
+      });
+    }
+
+    function exportIncomePDF() {
+      const element = document.getElementById('pdf-income');
+      const opt = {
+        margin:       10,
+        filename:     `charstudio-Penghasilan-${incomeBulan.replace('/','-')}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0a0a12' },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+      };
+
+      showLoading(true);
+      html2pdf().set(opt).from(element).save().then(() => {
+        showLoading(false);
+        showToast("PDF Penghasilan berhasil diunduh!", "success");
+      }).catch(err => {
+        showLoading(false);
+        showToast("Gagal mengekspor PDF: " + err, "danger");
+      });
+    }
+
+    function exportOutcomePDF() {
+      const element = document.getElementById('pdf-outcome');
+      const opt = {
+        margin:       10,
+        filename:     `charstudio-Pengeluaran-${outcomeBulan.replace('/','-')}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0a0a12' },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+      };
+
+      showLoading(true);
+      html2pdf().set(opt).from(element).save().then(() => {
+        showLoading(false);
+        showToast("PDF Pengeluaran berhasil diunduh!", "success");
+      }).catch(err => {
+        showLoading(false);
+        showToast("Gagal mengekspor PDF: " + err, "danger");
+      });
+    }
+
+    // GLOBAL INTERACTION HELPERS
+    function showLoading(show) {
+      const overlay = document.getElementById("loadingOverlay");
+      if (show) {
+        overlay.classList.remove("hidden");
+      } else {
+        overlay.classList.add("hidden");
+      }
+    }
+
+    function showToast(message, type = "success") {
+      const box = document.getElementById("toastBox");
+      const toast = document.createElement("div");
+
+      let bg = "bg-indigo-900 border-indigo-500 text-indigo-200";
+      if (type === "success") bg = "bg-emerald-950/90 border-emerald-500 text-emerald-200";
+      if (type === "danger") bg = "bg-red-950/90 border-red-500 text-red-200";
+      if (type === "info") bg = "bg-zinc-900/95 border-zinc-500 text-zinc-200";
+
+      toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl border ${bg} text-xs shadow-2xl pointer-events-auto transition-all duration-300 transform translate-x-12 opacity-0`;
+      toast.innerHTML = `
+        <i class="fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-400' : type === 'danger' ? 'fa-triangle-exclamation text-red-400' : 'fa-circle-info text-indigo-400'} text-sm"></i>
+        <span class="font-medium">${message}</span>
+      `;
+
+      box.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove("translate-x-12", "opacity-0");
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add("translate-x-12", "opacity-0");
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
